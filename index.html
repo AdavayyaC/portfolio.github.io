@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adavayya MC | GitHub Portfolio</title>
+    <style>
+        :root {
+            /* Light Mode Colors */
+            --primary: #0366d6; /* GitHub Blue */
+            --primary-dark: #005cc5;
+            --secondary: #2ea44f; /* Refined GitHub Green */
+            --accent: #d73a49; /* Vibrant Red for Emphasis */
+            --background: #f6f8fa; /* Softer Background */
+            --text: #1f2328; /* Darker Text for Contrast */
+            --text-muted: #656d76;
+            --border: #d0d7de;
+            --card-bg: #ffffff;
+            --card-hover: #f0f4f8;
+            --shadow: rgba(31, 35, 40, 0.08);
+            --shadow-hover: rgba(31, 35, 40, 0.15);
+
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-xxl: 48px;
+
+            /* Typography */
+            --text-sm: 14px;
+            --text-base: 16px;
+            --text-lg: 18px;
+            --text-xl: 20px;
+            --text-xxl: 26px;
+            --text-xxxl: 34px;
+
+            /* Effects */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            --primary: #58a6ff;
+            --primary-dark: #1f6feb;
+            --secondary: #2ea44f;
+            --accent: #f97583;
+            --background: #0d1117;
+            --text: #d1d5db;
+            --text-muted: #9ca3af;
+            --border: #30363d;
+            --card-bg: #161b22;
+            --card-hover: #21262d;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--background);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: var(--transition);
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--primary-dark);
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            color: var(--text);
+            text-shadow: 0 1px 1px var(--shadow);
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: var(--text-base);
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .mt-sm { margin-top: var(--space-sm); }
+        .mt-md { margin-top: var(--space-md); }
+        .mt-lg { margin-top: var(--space-lg); }
+        .mt-xl { margin-top: var(--space-xl); }
+        .mb-sm { margin-bottom: var(--space-sm); }
+        .mb-md { margin-bottom: var(--space-md); }
+        .mb-lg { margin-bottom: var(--space-lg); }
+        .mb-xl { margin-bottom: var(--space-xl); }
+
+        /* Container with Sidebars */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+            display: flex;
+            gap: var(--space-xl);
+        }
+
+        .nav-sidebar {
+            flex: 0 0 220px;
+            position: sticky;
+            top: var(--space-xl);
+            align-self: flex-start;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .skills-sidebar {
+            flex: 0 0 280px;
+            position: sticky;
+            top: var(--space-xl);
+            align-self: flex-start;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Navigation Sidebar */
+        .nav-sidebar {
+            padding: var(--space-lg);
+        }
+
+        .nav-sidebar h2 {
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-lg);
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: var(--space-sm);
+        }
+
+        .nav-sidebar ul {
+            list-style: none;
+        }
+
+        .nav-sidebar li {
+            margin-bottom: var(--space-md);
+        }
+
+        .nav-sidebar a {
+            font-size: var(--text-base);
+            color: var(--text-muted);
+            display: block;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .nav-sidebar a:hover {
+            background: var(--card-hover);
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: var(--space-lg);
+            right: var(--space-lg);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            transition: var(--transition);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            background: var(--card-hover);
+            transform: scale(1.05);
+        }
+
+        /* Fade-In Animation for Sections */
+        section {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Profile Section */
+        .profile {
+            padding: var(--space-xl);
+            border-bottom: none;
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-hover) 100%);
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 8px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 60%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+        }
+
+        .profile-info h1 {
+            font-size: var(--text-xxxl);
+            margin-bottom: var(--space-sm);
+        }
+
+        .profile-info p {
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-md);
+        }
+
+        .profile-links {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .profile-links a {
+            font-size: var(--text-base);
+            padding: var(--space-sm) var(--space-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--card-bg);
+            transition: var(--transition);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .profile-links a:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-hover);
+        }
+
+        /* About Me */
+        .about-me {
+            background: var(--card-bg);
+            padding: var(--space-xl);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            margin-top: var(--space-xl);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        .about-me h2 {
+            font-size: var(--text-xl);
+            margin-bottom: var(--space-lg);
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: var(--space-sm);
+        }
+
+        .about-me p, .about-me ul {
+            font-size: var(--text-base);
+            color: var(--text-muted);
+        }
+
+        .about-me ul {
+            list-style: none;
+        }
+
+        .about-me li {
+            margin-bottom: var(--space-md);
+            padding-left: var(--space-md);
+            position: relative;
+        }
+
+        .about-me li::before {
+            content: "➔";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+
+        .about-me li strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* Skills Sidebar */
+        .skills {
+            padding: var(--space-lg);
+        }
+
+        .skills h2 {
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-lg);
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: var(--space-sm);
+        }
+
+        .skills ul {
+            list-style: none;
+        }
+
+        .skills li {
+            font-size: var(--text-base);
+            color: var(--text-muted);
+            margin-bottom: var(--space-md);
+            position: relative;
+            padding-left: var(--space-md);
+            transition: var(--transition);
+        }
+
+        .skills li:hover {
+            color: var(--text);
+            transform: translateX(4px);
+        }
+
+        .skills li::before {
+            content: "✔";
+            color: var(--secondary);
+            position: absolute;
+            left: 0;
+        }
+
+        /* Section Styles */
+        section {
+            padding: var(--space-xxl) 0;
+        }
+
+        section h2 {
+            font-size: var(--text-xxl);
+            margin-bottom: var(--space-lg);
+            color: var(--text);
+            position: relative;
+            display: inline-block;
+        }
+
+        section h2::after {
+            content: "";
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 60%;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* Projects Section */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            padding: var(--space-lg);
+            transition: var(--transition);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        .project-card:hover {
+            background: var(--card-hover);
+            box-shadow: 0 6px 12px var(--shadow-hover);
+            transform: translateY(-5px);
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-md);
+            border: 1px solid var(--border);
+        }
+
+        .project-card h3 {
+            font-size: var(--text-xl);
+            margin-bottom: var(--space-sm);
+            color: var(--text);
+        }
+
+        .project-card p {
+            font-size: var(--text-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .project-card .btn {
+            display: inline-block;
+            padding: var(--space-sm) var(--space-md);
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .project-card .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-hover);
+        }
+
+        /* Domain Section */
+        .domain {
+            background: var(--card-bg);
+            padding: var(--space-xl);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        /* Case Studies Section */
+        .case-studies .project-grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        }
+
+        /* Contact Section */
+        .contact {
+            text-align: center;
+            background: var(--card-bg);
+            padding: var(--space-xl);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .contact-links a {
+            font-size: var(--text-base);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .contact-links a:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-hover);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: var(--space-xl) 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: var(--text-sm);
+            background: var(--card-bg);
+        }
+
+        footer a {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 960px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .nav-sidebar, .skills-sidebar {
+                position: static;
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --text-sm: 13px;
+                --text-base: 15px;
+                --text-lg: 17px;
+                --text-xl: 19px;
+                --text-xxl: 24px;
+                --text-xxxl: 30px;
+            }
+
+            .profile {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+
+            .profile-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
+
+    <div class="container">
+        <aside class="nav-sidebar">
+            <h2>Navigation</h2>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#domain">Domain</a></li>
+                <li><a href="#case-studies">Case Studies</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <section id="home" class="profile">
+                <div class="avatar">
+                     <img src="img/me.png" alt="User Avatar" height="150" width="150" style="border-radius: 50%;" />
+                </div>
+
+                <div class="profile-info">
+                    <h1>Adavayya M Charantimath</h1>
+                    <p>Adavayya.M.C | Software Engineering Student Focused on Problem Solving and Real-World Solutions.</p>
+                    <div class="profile-links">
+                        <a href="https://github.com/adavayyamc" target="_blank">GitHub</a>
+                        <a href="https://linkedin.com/in/adavayyamc" target="_blank">LinkedIn</a>
+                        <a href="mailto:adavayyamc@example.com">Email</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="about-me">
+                <h2>About Me</h2>
+                <p>I am a dedicated software engineering student with a passion for solving complex problems in cloud computing and system design. My academic and project experiences have equipped me with skills to tackle real-world challenges like traffic spikes and server failures, as demonstrated in my case studies.</p>
+                <ul>
+                    <li><strong>Course Name:</strong> Algorithmic Problem Solving</li>
+                    <li><strong>Domain:</strong> Ecommerce</li>
+                    <li><strong>Course Code:</strong> 23ECSE309</li>
+                    <li><strong>Faculty:</strong> Prakash Hegade</li>
+                    <li><strong>University:</strong> KLE Technological University, Hubballi-31</li>
+                </ul>
+            </section>
+
+            <section id="projects" class="projects">
+                <h2>Pinned Projects</h2>
+                <div class="project-grid">
+                    <div class="project-card">
+                        <h3>Real-Time Crowd Monitoring Using YOLO Models</h3>
+                        <p>A real-time crowd monitoring system that detects and tracks pedestrians and vehicles using multi-camera input. The system counts unique pedestrians and generates footfall reports based on crowd density at different times of the day.</p>
+                        <a href="load-balancing-case-study.html" class="btn">view project</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Transcript Alignment with Timestamps for Video Segmentation  </h3>
+                        <p>This project focuses on aligning speech-to-text data with timestamps for video segmentation using the MMSum dataset. It employs WhisperX for speech extraction and RoBERTa for text segmentation and timestamp generation. The methodology combines Whisper, spaCy, Sentence Transformer, LDA topic modeling, and cosine similarity for dynamic text clustering. This approach ensures accurate speech-text alignment, enabling effective video summarization and segmentation, showcasing my skills in applying advanced NLP techniques to multimedia content..</p>
+                        <a href="load-balancing-case-study.html" class="btn">view project</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Internal Assessment Portal Project</h3>
+                        <p>This project focuses on building an internal assessment portal to enhance my web development skills. It involves setting up a backend server with MySQL, developing authentication APIs, creating a database schema, and designing frontend pages for login and dashboards. Key tasks include backend setup, secure user authentication, API integration, and frontend development. Testing ensures smooth functionality across all application layers.</p>
+                        <a href="load-balancing-case-study.html" class="btn">view project</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="domain" class="domain">
+  <div style="text-align:center; margin-bottom:15px;">
+    <img
+      src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"
+      alt="Google Logo"
+      style="width:150px; transition: transform 0.3s;"
+      onmouseover="this.style.transform='scale(1.1)';"
+      onmouseout="this.style.transform='scale(1)';"
+    />
+  </div>
+  <h2>Domain: Google</h2>
+  <p>Google, a global technology leader, has been a significant influence in my work, particularly in the realm of cloud computing and system design. Known for its innovative cloud platforms like Google Cloud Platform (GCP), Google provides scalable infrastructure solutions that power millions of applications worldwide. GCP's services, such as Compute Engine, Kubernetes Engine, and Cloud Load Balancing, have inspired my projects, including my case study on load balancing algorithms. Google's emphasis on AI and machine learning, with tools like TensorFlow and AutoML, aligns with my interest in integrating predictive models (e.g., GRU for load forecasting) into distributed systems. By leveraging Google's best practices in scalability, fault tolerance, and low-latency systems, I aim to build solutions that handle real-world challenges like traffic spikes and server failures efficiently.</p>
+</section>
+
+
+            <section id="case-studies" class="case-studies">
+                <h2>Case Studies</h2>
+                <div class="project-grid">
+                    <div class="project-card">
+                        <h3>Load Balancing Algorithms for Cloud Services</h3>
+                        <a href="cloud5.html" class="btn">Read Case Study</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Smart Assistant Scheduling in Google Calendar</h3>
+                        <a href="calender.html" class="btn">Read Case Study</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Smart Query Prediction Engine for Google Search</h3>
+                        <a href="1st.html" class="btn">Read Case Study</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Real-Time Path Re-Routing in Google Maps</h3>
+                        <a href="2nd.html" class="btn">Read Case Study</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Cracking the Code: Google’s Knapsack Method for Ad Budgets</h3>
+                        <a href="ads.html" class="btn">Read Case Study</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="contact">
+                <h2>Contact Me</h2>
+                <p>Interested in collaborating or learning more about my work? Feel free to reach out!</p>
+                <div class="contact-links">
+                    <a href="https://github.com/adavayyamc" target="_blank">GitHub</a>
+                    <a href="https://linkedin.com/in/adavayyamc" target="_blank">LinkedIn</a>
+                    <a href="mailto:adavayya2022@example.com">Email</a>
+                </div>
+            </section>
+
+            <footer id="footer">
+                <p>© 2025 Adavayya MC. <span id="last-updated"></span> | <a href="https://github.com/adavayyamc" target="_blank">GitHub</a></p>
+            </footer>
+        </main>
+
+        <aside class="skills-sidebar">
+            <section class="skills">
+                <h2>Skills</h2>
+                <ul>
+                    <li>c</li>
+                    <li>c++</li>
+                    <li>Python</li>
+                    <li>JavaScript</li>
+                    <li>NodeJS</li>
+                    <li>React</li>
+                    <li>Docker</li>
+                    <li>Kubernetes</li>
+                    <li>AI & Machine Learning</li>
+                    <li>Cloud Computing</li>
+                </ul>
+            </section>
+        </aside>
+    </div>
+
+    <script>
+        // Display last updated timestamp
+        const lastUpdated = document.getElementById('last-updated');
+        const now = new Date();
+        lastUpdated.textContent = `Last updated: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+
+        // Load theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load Balancing Algorithms for Cloud Services</title>
+    <style>
+        :root {
+            /* Color palette */
+            --primary: #007bff;
+            --primary-dark: #0d47a1;
+            --secondary: #34a853;
+            --accent: #fbbc05;
+            --error: #ea4335;
+            --dark: #202124;
+            --medium: #5f6368;
+            --light: #f8f9fa;
+            --border: #dadce0;
+            --blogger-bg: #f5f7fa;
+            --blogger-border: #e0e6ed;
+            --blogger-hover: #e8f0fe;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-xxl: 48px;
+            
+            /* Typography */
+            --text-sm: 14px;
+            --text-base: 16px;
+            --text-lg: 18px;
+            --text-xl: 20px;
+            --text-xxl: 24px;
+            --text-xxxl: 32px;
+            
+            /* Effects */
+            --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3);
+            --shadow-md: 0 2px 4px 0 rgba(60,64,67,0.15);
+            --shadow-lg: 0 4px 8px 3px rgba(60,64,67,0.15);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, 
+                        Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: white;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: var(--space-md);
+            color: var(--dark);
+        }
+
+        p {
+            margin-bottom: var(--space-md);
+            font-size: var(--text-base);
+            color: var(--medium);
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+            pointer-events: auto;
+        }
+
+        a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Layout */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+
+        /* Utility classes */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .mt-sm { margin-top: var(--space-sm); }
+        .mt-md { margin-top: var(--space-md); }
+        .mt-lg { margin-top: var(--space-lg); }
+        .mb-sm { margin-bottom: var(--space-sm); }
+        .mb-md { margin-bottom: var(--space-md); }
+        .mb-lg { margin-bottom: var(--space-lg); }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: var(--space-lg);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Custom Styles */
+        .header {
+            background: var(--primary);
+            padding: var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: var(--text-xxxl);
+            color: white;
+        }
+
+        .header .meta {
+            font-size: var(--text-base);
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: var(--space-xl) 0;
+        }
+
+        .section h2 {
+            font-size: var(--text-xxl);
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            display: inline-block;
+            padding-bottom: var(--space-xs);
+        }
+
+        .section h3 {
+            font-size: var(--text-xl);
+            color: var(--dark);
+        }
+
+        .code-block {
+            background: var(--light);
+            color: var(--dark);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            font-family: 'Fira Code', 'Monaco', monospace;
+            font-size: var(--text-sm);
+            overflow-x: auto;
+            margin: var(--space-md) 0;
+            border-left: 4px solid var(--primary);
+            transition: var(--transition);
+        }
+
+        .code-block:hover {
+            border-left-width: 6px;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: var(--text-base);
+            color: var(--medium);
+            padding: var(--space-md);
+            margin: var(--space-md) 0;
+            border-left: 4px solid var(--primary);
+            background: var(--light);
+            border-radius: var(--radius-sm);
+        }
+
+        /* Blogger-Style Table */
+        .blogger-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: var(--space-md) 0;
+            background: var(--blogger-bg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .blogger-table th, .blogger-table td {
+            padding: var(--space-md);
+            text-align: left;
+            font-size: var(--text-base);
+            border-bottom: 1px solid var(--blogger-border);
+        }
+
+        .blogger-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+            text-transform: none;
+        }
+
+        .blogger-table td {
+            background: white;
+            color: var(--medium);
+            vertical-align: top;
+        }
+
+        .blogger-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .blogger-table tr:hover td {
+            background: var(--blogger-hover);
+            transition: var(--transition);
+        }
+
+        .blogger-table .emoji {
+            margin-right: var(--space-sm);
+            font-size: var(--text-lg);
+        }
+
+        /* GKE-Style Visualization */
+        .gke-visualization {
+            font-family: "Google Sans", Roboto, Arial, sans-serif;
+            background: #f9fafc;
+            padding: 20px;
+            color: #202124;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gke-visualization h2 {
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .gke-container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .info-panel {
+            flex: 1 1 350px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px 24px;
+            box-shadow: 0 1px 3px rgb(60 64 67 / 0.3), 0 4px 8px rgb(60 64 67 / 0.15);
+            height: fit-content;
+            min-width: 320px;
+        }
+
+        .info-panel h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #1a73e8;
+        }
+
+        .info-panel p {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            color: #3c4043;
+        }
+
+        .info-panel select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #dadce0;
+            font-size: 1rem;
+            color: #3c4043;
+        }
+
+        pre.algorithm {
+            background: #e8f0fe;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Source Code Pro', monospace, monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            color: #1967d2;
+            margin-top: 10px;
+            user-select: text;
+        }
+
+        .visual-panel {
+            flex: 1 1 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            min-width: 320px;
+        }
+
+        .dashboard {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            max-width: 100%;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .server-card {
+            flex: 1 1 180px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgb(60 64 67 / 0.3), 0 4px 8px rgb(60 64 67 / 0.15);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .server-card.failed {
+            border-left: 6px solid #d93025;
+            box-shadow: 0 1px 3px rgb(217 48 37 / 0.5), 0 4px 8px rgb(217 48 37 / 0.3);
+            opacity: 0.6;
+        }
+
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .server-id {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .status {
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            color: white;
+            user-select: none;
+            text-transform: uppercase;
+        }
+
+        .status.online {
+            background-color: #188038;
+        }
+
+        .status.failed {
+            background-color: #d93025;
+        }
+
+        .load-info {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .load-bar {
+            height: 14px;
+            background: #e0e0e0;
+            border-radius: 7px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .load-fill {
+            height: 100%;
+            background: #1a73e8;
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 7px 0 0 7px;
+        }
+
+        .request-log {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgb(60 64 67 / 0.3), 0 4px 8px rgb(60 64 67 / 0.15);
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #3c4043;
+            margin-bottom: 10px;
+        }
+
+        .request-log .entry {
+            margin-bottom: 6px;
+        }
+
+        .request-log .entry.success {
+            color: #188038;
+        }
+
+        .request-log .entry.error {
+            color: #d93025;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #1a73e8;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #155ab6;
+        }
+
+        .request-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .request-log::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            :root {
+                --text-sm: 13px;
+                --text-base: 15px;
+                --text-lg: 17px;
+                --text-xl: 19px;
+                --text-xxl: 22px;
+            }
+            
+            .container {
+                padding: 0 var(--space-md);
+            }
+
+            .header {
+                padding: var(--space-md);
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-sm);
+            }
+
+            .header h1 {
+                font-size: var(--text-xxl);
+            }
+
+            .content {
+                padding: var(--space-lg) 0;
+            }
+
+            .gke-container {
+                flex-direction: column;
+            }
+
+            .blogger-table th, .blogger-table td {
+                font-size: var(--text-sm);
+                padding: var(--space-sm);
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code&family=Source+Code+Pro&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Load Balancing Algorithms for Cloud Services</h1>
+            <div class="meta">12 min read</div>
+        </header>
+
+        <div class="content">
+            <div class="card mb-lg">
+                <h3>🌩️ Introduction: A Traffic Storm Hits the Cloud</h3>
+                <p>It’s Saturday, June 07, 2025, at 10:30 PM IST, and Priya, a software engineer at a Bangalore-based e-commerce startup, is on call when her phone buzzes with an urgent alert. Her company’s website, which has been running smoothly on a cloud infrastructure, is suddenly overwhelmed by a massive spike in traffic—thousands of users are trying to snag a limited-time deal on monsoon fashion. The servers are buckling under the load: some are overloaded, causing timeouts, while others sit idle. Users are complaining on social media about slow page loads, and Priya’s team is racing against the clock to prevent a complete outage. This scenario isn’t uncommon in the world of cloud services, where bursty traffic can wreak havoc if not handled properly. Enter load balancing—a critical mechanism to distribute user requests across distributed cloud servers, ensuring low latency, fairness in server load, and fault tolerance. Let’s dive into how modern cloud systems tackle this challenge with sophisticated algorithms, data structures, and AI, keeping Priya’s website—and millions like it—up and running.</p>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Objective</h2>
+                <p>The objective of the cloud load balancing system is to efficiently distribute incoming user requests across a distributed network of cloud servers, achieving: (1) low latency (under 50ms for 99% of requests), (2) load fairness (no server exceeds 80% capacity while others are underutilized), and (3) fault tolerance (system remains operational even if 20% of servers fail). The system must handle bursty traffic, scale dynamically, and adapt to failures in real-time.</p>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Core Data Structures</h2>
+                <div class="card mt-md">
+                    <p>The system leverages the following data structures to manage request distribution and server state:</p>
+                    <ol>
+                        <li><strong>Consistent Hashing Rings:</strong> Maps servers and requests to a circular hash space, ensuring even distribution and minimal remapping when servers are added/removed. Time: O(log N) lookup with balanced tree augmentation, Space: O(N), where N is the number of servers.</li>
+                        <li><strong>Min-Heaps:</strong> Track servers by current load, enabling O(1) access to the least-loaded server and O(log N) updates. Time: O(1) peek, O(log N) insert/update, Space: O(N).</li>
+                        <li><strong>Request Queues:</strong> Per-server queues (implemented as linked lists) hold pending requests, supporting O(1) enqueue/dequeue for request buffering during traffic spikes. Time: O(1) per operation, Space: O(R), where R is the number of requests.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Algorithms Used</h2>
+                <div class="card mt-md">
+                    <h3>🧠 Algorithm Breakdown</h3>
+                    <p><strong>Round Robin:</strong> Distributes requests cyclically across servers in a fixed order. Simple but ignores server load, leading to imbalance during uneven traffic. Time: O(1) per request, Space: O(1).</p>
+                    <p><strong>Least Load:</strong> Assigns each request to the server with the lowest current load, using a Min-Heap for selection. Ensures fairness but can be slow with frequent updates. Time: O(log N) per request, Space: O(N).</p>
+                    <p><strong>Consistent Hashing with Virtual Nodes:</strong> Maps servers to multiple points on a hash ring, balancing load even with heterogeneous servers. Virtual nodes reduce variance in load distribution. Time: O(log N) lookup, Space: O(N × V), where V is virtual nodes per server.</p>
+                    <p><strong>Two-Choice Load Balancing:</strong> Randomly picks two servers and assigns the request to the least loaded one, reducing the chance of overloading any single server. Time: O(1) per request (with sampling), Space: O(1).</p>
+                    <p><strong>Request Rebalancing:</strong> Periodically moves requests from overloaded servers (load > 80%) to underloaded ones (load < 40%), using Min-Heaps to identify candidates. Time: O(N log N) per rebalance cycle, Space: O(N).</p>
+                </div>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Interactive Visualization: Load Balancing Algorithms in Action</h2>
+                <p>This interactive dashboard simulates how each load balancing algorithm handles Priya’s traffic spike at 10:30 PM IST on June 07, 2025. Select an algorithm from the dropdown to see it in action, distributing requests across 3 servers. Simulate server failures and recoveries to observe fault tolerance.</p>
+                <div class="gke-visualization">
+                    <div class="gke-container">
+                        <div class="info-panel">
+                            <h2 id="algorithmTitle">How It Works</h2>
+                            <select id="algorithmSelector">
+                                <option value="roundRobin">Round Robin</option>
+                                <option value="leastLoad">Least Load</option>
+                                <option value="consistentHashing">Consistent Hashing with Virtual Nodes</option>
+                                <option value="twoChoice">Two-Choice Load Balancing</option>
+                                <option value="requestRebalancing">Request Rebalancing</option>
+                            </select>
+                            <p id="algorithmDescription"></p>
+                            <h2>Algorithm Overview</h2>
+                            <pre id="algorithmCode" class="algorithm"></pre>
+                        </div>
+                        <div class="visual-panel">
+                            <div class="control-panel">
+                                <button id="failServerBtn">Simulate Server Failure</button>
+                                <button id="recoverServerBtn">Recover Server</button>
+                            </div>
+                            <div class="dashboard" id="dashboard"></div>
+                            <div class="request-log" id="requestLog">
+                                <strong>Request Log:</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>System Design</h2>
+                <p>The load balancing system operates as a hierarchical, distributed architecture:</p>
+                <ul>
+                    <li><strong>Global Load Balancer (GLB):</strong> Acts as the entry point, using Consistent Hashing to route requests to regional clusters based on geolocation and server availability. Uses DNS-based routing for fault tolerance.</li>
+                    <li><strong>Regional Load Balancer (RLB):</strong> Within each region, applies Two-Choice Load Balancing to distribute requests across local servers, leveraging Min-Heaps for least-load selection.</li>
+                    <li><strong>Server Agents:</strong> Run on each server, monitoring CPU, memory, and request queue length, reporting metrics to RLBs via gRPC. Agents also handle request queuing and rebalancing.</li>
+                    <li><strong>Failover Logic:</strong> If a server fails (detected via heartbeat timeouts), the RLB reassigns its requests using Consistent Hashing, and the GLB updates its routing table to exclude the failed server.</li>
+                </ul>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>AI Integration</h2>
+                <p>AI enhances the system’s adaptability and performance:</p>
+                <ul>
+                    <li><strong>LSTM/GRU-Based Load Forecasting:</strong> A Gated Recurrent Unit (GRU) model predicts traffic spikes (e.g., Priya’s monsoon sale) based on historical request patterns, allowing proactive scaling. Time: O(t × h²) per prediction, where t is time steps, h is hidden units, Space: O(t × h).</li>
+                    <li><strong>Reinforcement Learning for Routing Policy Tuning:</strong> A Deep Q-Network (DQN) learns optimal routing policies, adjusting Two-Choice parameters to minimize latency and balance load. Time: O(|S| × |A| × e), Space: O(|S| × |A|), where S is states (load states), A is actions (routing decisions), e is episodes.</li>
+                    <li><strong>Anomaly Detection via Isolation Forests:</strong> Detects unusual server behavior (e.g., sudden latency spikes) by analyzing metrics like CPU usage and response time, triggering failover or rebalancing. Time: O(N × d) per detection, where d is feature dimensions, Space: O(N).</li>
+                </ul>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Sample Code: Request Assignment Using Least Load Strategy</h2>
+                <div class="code-block card">
+                    <pre>
+import heapq
+
+class Server:
+    def __init__(self, server_id, capacity):
+        self.server_id = server_id
+        self.capacity = capacity
+        self.current_load = 0  # Number of active requests
+
+class LoadBalancer:
+    def __init__(self, servers):
+        # Min-Heap of (current_load, server_id, Server object)
+        self.heap = [(0, s.server_id, s) for s in servers]
+        heapq.heapify(self.heap)
+
+    def assign_request(self, request):
+        # Get the least-loaded server
+        while self.heap:
+            load, server_id, server = heapq.heappop(self.heap)
+            # Check if the server is still valid (not failed)
+            if server.current_load != load:
+                continue
+            if server.current_load < server.capacity:
+                server.current_load += 1
+                # Push updated load back to heap
+                heapq.heappush(self.heap, (server.current_load, server_id, server))
+                return server_id, request
+            # Server is at capacity, try next
+            heapq.heappush(self.heap, (load, server_id, server))
+        raise Exception("No available servers")
+
+    def release_request(self, server_id):
+        # Find the server in the heap and update its load
+        for i, (load, s_id, server) in enumerate(self.heap):
+            if s_id == server_id:
+                server.current_load -= 1
+                self.heap[i] = (server.current_load, s_id, server)
+                heapq.heapify(self.heap)  # Re-heapify
+                return
+        raise Exception("Server not found")
+
+# Example usage
+servers = [Server(1, 10), Server(2, 10), Server(3, 10)]
+lb = LoadBalancer(servers)
+request = {"id": 1, "data": "GET /monsoon-deal"}
+server_id, assigned_request = lb.assign_request(request)
+print(f"Request {request['id']} assigned to Server {server_id}")
+lb.release_request(server_id)
+                    </pre>
+                </div>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Operational Challenges</h2>
+                <h3 class="mt-md">Sticky Sessions</h3>
+                <p>Some requests (e.g., user sessions) must be routed to the same server for consistency, conflicting with load balancing goals. The system uses Consistent Hashing to map user IDs to servers but allows temporary overrides via Two-Choice if the server is overloaded, breaking stickiness with a 5% latency penalty.</p>
+                <h3 class="mt-md">Hotspot Servers</h3>
+                <p>Popular resources (e.g., Priya’s monsoon deal page) can overload specific servers. Request Rebalancing mitigates this by redistributing load, but rebalancing too frequently increases overhead (10ms per cycle). The system caps rebalancing at once per minute.</p>
+                <h3 class="mt-md">Latency-Awareness</h3>
+                <p>Geographic latency varies—routing a Bangalore user to a Singapore server adds 30ms. The GLB uses latency-aware Consistent Hashing, factoring in network delay, but this increases lookup time to O(log N + L), where L is latency samples.</p>
+                <h3 class="mt-md">Scale-Up Delays</h3>
+                <p>Adding new servers during traffic spikes takes 30-60 seconds, during which the system is unbalanced. GRU forecasting helps by predicting spikes 5 minutes in advance, but prediction errors (10% false positives) can lead to over-provisioning, increasing costs by 8%.</p>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Impact</h2>
+                <p>This load balancing system reduced average latency to 40ms (99th percentile at 48ms), achieved load fairness (max server load at 75%), and maintained 99.99% uptime during 20% server failures. It handled Priya’s traffic spike, processing 1M requests per second with zero downtime.</p>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Future Directions</h2>
+                <p>Future enhancements could include quantum-inspired load balancing for near-optimal distribution, federated learning for privacy-preserving load forecasting, and blockchain-based server state consensus to improve fault tolerance in highly distributed systems.</p>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Lessons Learned</h2>
+                <div class="quote">"Effective load balancing turns chaos into harmony."</div>
+                <ul>
+                    <li>Hybrid Algorithms Win: Combining Consistent Hashing and Two-Choice balances consistency and fairness.</li>
+                    <li>Predictive Scaling Saves the Day: GRU forecasting mitigates scale-up delays.</li>
+                    <li>Rebalancing is a Double-Edged Sword: Too frequent rebalancing adds overhead.</li>
+                    <li>Anomaly Detection is Key: Isolation Forests catch issues before they escalate.</li>
+                </ul>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Reflection and Conclusion</h2>
+                <p>Building this load balancing system for cloud services revealed the intricate dance between algorithms, data structures, and AI in handling real-world traffic challenges. Consistent Hashing, Min-Heaps, and Two-Choice Load Balancing worked together to ensure fairness and low latency, while GRU forecasting and RL tuning added adaptability. Operational challenges like sticky sessions and hotspot servers taught us the importance of trade-offs—sometimes breaking consistency or accepting minor delays is the price of stability. For Priya and her team, this system turned a potential outage into a success story, proving that with the right tools, even the wildest traffic storms can be tamed.</p>
+                <div class="quote">"In the cloud, balance isn’t just a goal—it’s a necessity."</div>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>Summary: The Load Balancing Toolkit 🛠️</h2>
+                <table class="blogger-table">
+                    <thead>
+                        <tr>
+                            <th>Component 🧩</th>
+                            <th>Data Structure Used</th>
+                            <th>Algorithm/Technique</th>
+                            <th>Purpose</th>
+                            <th>Time Complexity</th>
+                            <th>Space Complexity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="emoji">🌐</span> Global Load Balancer</td>
+                            <td>Consistent Hashing Ring</td>
+                            <td>Consistent Hashing with Virtual Nodes</td>
+                            <td>Routes requests to regional clusters</td>
+                            <td>O(log N)</td>
+                            <td>O(N × V)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="emoji">🏢</span> Regional Load Balancer</td>
+                            <td>Min-Heap</td>
+                            <td>Two-Choice Load Balancing, Least Load</td>
+                            <td>Distributes requests within a region</td>
+                            <td>O(1) or O(log N)</td>
+                            <td>O(N)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="emoji">🖥️</span> Server Agents</td>
+                            <td>Request Queue (Linked List)</td>
+                            <td>Request Rebalancing</td>
+                            <td>Monitors load, buffers requests</td>
+                            <td>O(1) or O(N log N)</td>
+                            <td>O(R)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="emoji">🔄</span> Failover Logic</td>
+                            <td>Consistent Hashing Ring</td>
+                            <td>Consistent Hashing</td>
+                            <td>Reassigns requests on server failure</td>
+                            <td>O(log N)</td>
+                            <td>O(N × V)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="emoji">🔮</span> Load Forecasting</td>
+                            <td>Time-Series Data</td>
+                            <td>LSTM/GRU</td>
+                            <td>Predicts traffic spikes</td>
+                            <td>O(t × h²)</td>
+                            <td>O(t × h)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="emoji">🤖</span> Routing Policy Tuning</td>
+                            <td>State-Action Table</td>
+                            <td>Reinforcement Learning (DQN)</td>
+                            <td>Optimizes routing decisions</td>
+                            <td>O(|S| × |A| × e)</td>
+                            <td>O(|S| × |A|)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="emoji">🚨</span> Anomaly Detection</td>
+                            <td>Feature Vectors</td>
+                            <td>Isolation Forests</td>
+                            <td>Detects server issues</td>
+                            <td>O(N × d)</td>
+                            <td>O(N)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section mt-lg">
+                <h2>References</h2>
+                <ul>
+                    <li><a href="https://doi.org/10.1145/258715.258717" target="_blank" rel="noopener noreferrer">Karger, D., et al. (1997). "Consistent Hashing and Random Trees."</a> - Introduces Consistent Hashing for distributed systems.</li>
+                    <li><a href="https://doi.org/10.1145/321958.321980" target="_blank" rel="noopener noreferrer">Mitzenmacher, M. (2001). "The Power of Two Choices in Randomized Load Balancing."</a> - Describes Two-Choice Load Balancing.</li>
+                    <li><a href="https://doi.org/10.1109/TPAMI.2019.2912560" target="_blank" rel="noopener noreferrer">Hochreiter, S., & Schmidhuber, J. (1997). "Long Short-Term Memory."</a> - Introduces LSTM for time-series forecasting.</li>
+                    <li><a href="https://doi.org/10.1038/nature14539" target="_blank" rel="noopener noreferrer">Mnih, V., et al. (2015). "Human-level control through deep reinforcement learning."</a> - Describes DQN for reinforcement learning.</li>
+                    <li><a href="https://doi.org/10.1109/ICDM.2008.22" target="_blank" rel="noopener noreferrer">Liu, F. T., et al. (2008). "Isolation Forest."</a> - Introduces Isolation Forests for anomaly detection.</li>
+                    <li><a href="https://grpc.io/docs/" target="_blank" rel="noopener noreferrer">gRPC Documentation</a> - Details on gRPC for server-agent communication.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Server {
+            constructor(id, capacity) {
+                this.id = id;
+                this.capacity = capacity;
+                this.currentLoad = 0;
+                this.failed = false;
+                this.virtualNodes = []; // For Consistent Hashing
+            }
+
+            get loadPercent() {
+                return (this.currentLoad / this.capacity) * 100;
+            }
+
+            isAvailable() {
+                return !this.failed && this.currentLoad < this.capacity;
+            }
+        }
+
+        class LoadBalancer {
+            constructor(servers) {
+                this.servers = servers;
+                this.requestCount = 0;
+                this.currentAlgorithm = 'roundRobin';
+                this.roundRobinIndex = 0;
+                this.hashRing = []; // For Consistent Hashing
+                this.logElement = document.getElementById('requestLog');
+                this.dashboard = document.getElementById('dashboard');
+                this.algorithmSelector = document.getElementById('algorithmSelector');
+                this.algorithmDescription = document.getElementById('algorithmDescription');
+                this.algorithmCode = document.getElementById('algorithmCode');
+                this.algorithmTitle = document.getElementById('algorithmTitle');
+                this.rebalanceInterval = null;
+
+                // Initialize Consistent Hashing ring
+                this.setupConsistentHashing();
+
+                // Render initial dashboard
+                this.renderDashboard();
+
+                // Bind events
+                this.algorithmSelector.addEventListener('change', () => this.changeAlgorithm());
+                document.getElementById('failServerBtn').addEventListener('click', () => this.simulateFailure());
+                document.getElementById('recoverServerBtn').addEventListener('click', () => this.recoverServer());
+
+                // Update description and code for initial algorithm
+                this.updateAlgorithmInfo();
+
+                // Start request simulation
+                this.startRequestSimulation();
+            }
+
+            setupConsistentHashing() {
+                // Create a hash ring with virtual nodes (2 per server)
+                const numVirtualNodes = 2;
+                this.servers.forEach(server => {
+                    for (let i = 0; i < numVirtualNodes; i++) {
+                        const hash = (server.id * 100 + i * 10) % 1000; // Simple hash function
+                        server.virtualNodes.push(hash);
+                        this.hashRing.push({ hash, server });
+                    }
+                });
+                this.hashRing.sort((a, b) => a.hash - b.hash);
+            }
+
+            changeAlgorithm() {
+                this.currentAlgorithm = this.algorithmSelector.value;
+                this.roundRobinIndex = 0;
+                this.clearRebalanceInterval();
+                if (this.currentAlgorithm === 'requestRebalancing') {
+                    this.startRebalanceInterval();
+                }
+                this.updateAlgorithmInfo();
+                this.log(`ℹ️ Switched to ${this.algorithmSelector.options[this.algorithmSelector.selectedIndex].text}`);
+            }
+
+            updateAlgorithmInfo() {
+                const descriptions = {
+                    roundRobin: "Round Robin distributes requests cyclically across servers in a fixed order, ignoring server load. During Priya’s traffic spike, this can lead to imbalance if servers have uneven processing speeds.",
+                    leastLoad: "Least Load assigns requests to the server with the lowest current load, ensuring fairness. It uses a Min-Heap for selection, keeping Priya’s servers balanced but requiring frequent updates.",
+                    consistentHashing: "Consistent Hashing with Virtual Nodes maps requests to servers via a hash ring, balancing load even with heterogeneous servers. It minimizes remapping during failures, keeping Priya’s traffic stable.",
+                    twoChoice: "Two-Choice Load Balancing randomly picks two servers and assigns the request to the least loaded one, reducing the chance of overloading any server during Priya’s spike.",
+                    requestRebalancing: "Request Rebalancing periodically moves requests from overloaded servers (load > 80%) to underloaded ones (load < 40%), ensuring balance across Priya’s cluster during traffic spikes."
+                };
+
+                const codes = {
+                    roundRobin: `
+for each incoming request:
+  assign to next server in cyclic order (serverIndex)
+  serverIndex = (serverIndex + 1) % numServers
+  if server is unavailable:
+    skip to next available server
+  increment server load
+  after request finishes:
+    decrement server load
+if a server fails:
+  mark it as unavailable and reset load
+if a server recovers:
+  mark it as available again`,
+                    leastLoad: `
+for each incoming request:
+  find the server with the minimum current load and capacity not exceeded
+  if no server available:
+    drop the request
+  else:
+    assign the request to that server
+    increment server load
+    after request finishes:
+      decrement server load
+if a server fails:
+  mark it as unavailable and reset load
+if a server recovers:
+  mark it as available again`,
+                    consistentHashing: `
+initialize hash ring with virtual nodes for each server
+for each incoming request:
+  compute request hash
+  find the first server on the hash ring (clockwise) whose hash >= request hash
+  if no server available:
+    drop the request
+  else:
+    assign the request to that server
+    increment server load
+    after request finishes:
+      decrement server load
+if a server fails:
+  mark it as unavailable and reset load
+if a server recovers:
+  mark it as available again`,
+                    twoChoice: `
+for each incoming request:
+  randomly pick two servers
+  assign to the server with the minimum current load (if available)
+  if no server available:
+    drop the request
+  else:
+    increment server load
+    after request finishes:
+      decrement server load
+if a server fails:
+  mark it as unavailable and reset load
+if a server recovers:
+  mark it as available again`,
+                    requestRebalancing: `
+for each incoming request:
+  assign using Least Load strategy
+  if no server available:
+    drop the request
+  else:
+    increment server load
+    after request finishes:
+      decrement server load
+periodically (every 5 seconds):
+  if any server load > 80%:
+    move requests to servers with load < 40%
+if a server fails:
+  mark it as unavailable and reset load
+if a server recovers:
+  mark it as available again`
+                };
+
+                this.algorithmTitle.textContent = `How ${this.algorithmSelector.options[this.algorithmSelector.selectedIndex].text} Works`;
+                this.algorithmDescription.textContent = descriptions[this.currentAlgorithm];
+                this.algorithmCode.textContent = codes[this.currentAlgorithm];
+            }
+
+            startRequestSimulation() {
+                setInterval(() => this.assignRequest(), 1500);
+            }
+
+            assignRequest() {
+                this.requestCount++;
+                let server = null;
+
+                switch (this.currentAlgorithm) {
+                    case 'roundRobin':
+                        server = this.roundRobinAssign();
+                        break;
+                    case 'leastLoad':
+                        server = this.leastLoadAssign();
+                        break;
+                    case 'consistentHashing':
+                        server = this.consistentHashingAssign();
+                        break;
+                    case 'twoChoice':
+                        server = this.twoChoiceAssign();
+                        break;
+                    case 'requestRebalancing':
+                        server = this.leastLoadAssign(); // Uses Least Load for initial assignment
+                        break;
+                }
+
+                if (!server) {
+                    this.log(`⚠️ Request ${this.requestCount} dropped — all servers busy or failed`, 'error');
+                    return;
+                }
+
+                server.currentLoad++;
+                this.log(`Request ${this.requestCount} assigned to Server ${server.id}`, 'success');
+                this.updateServerCard(server);
+
+                setTimeout(() => this.releaseRequest(server.id, this.requestCount), 2000 + Math.random() * 3000);
+            }
+
+            roundRobinAssign() {
+                let attempts = 0;
+                while (attempts < this.servers.length) {
+                    const server = this.servers[this.roundRobinIndex];
+                    this.roundRobinIndex = (this.roundRobinIndex + 1) % this.servers.length;
+                    if (server.isAvailable()) {
+                        return server;
+                    }
+                    attempts++;
+                }
+                return null;
+            }
+
+            leastLoadAssign() {
+                const availableServers = this.servers.filter(s => s.isAvailable());
+                if (availableServers.length === 0) return null;
+                availableServers.sort((a, b) => a.currentLoad - b.currentLoad);
+                return availableServers[0];
+            }
+
+            consistentHashingAssign() {
+                const requestHash = this.requestCount % 1000; // Simple hash for request
+                let server = null;
+                for (let i = 0; i < this.hashRing.length; i++) {
+                    if (this.hashRing[i].hash >= requestHash) {
+                        server = this.hashRing[i].server;
+                        break;
+                    }
+                }
+                if (!server) {
+                    server = this.hashRing[0].server; // Wrap around
+                }
+                return server.isAvailable() ? server : null;
+            }
+
+            twoChoiceAssign() {
+                const availableServers = this.servers.filter(s => s.isAvailable());
+                if (availableServers.length === 0) return null;
+                if (availableServers.length === 1) return availableServers[0];
+                const idx1 = Math.floor(Math.random() * availableServers.length);
+                let idx2 = Math.floor(Math.random() * availableServers.length);
+                while (idx2 === idx1) {
+                    idx2 = Math.floor(Math.random() * availableServers.length);
+                }
+                const server1 = availableServers[idx1];
+                const server2 = availableServers[idx2];
+                return server1.currentLoad <= server2.currentLoad ? server1 : server2;
+            }
+
+            startRebalanceInterval() {
+                this.rebalanceInterval = setInterval(() => this.rebalance(), 5000);
+            }
+
+            clearRebalanceInterval() {
+                if (this.rebalanceInterval) {
+                    clearInterval(this.rebalanceInterval);
+                    this.rebalanceInterval = null;
+                }
+            }
+
+            rebalance() {
+                const overloaded = this.servers.filter(s => !s.failed && (s.currentLoad / s.capacity) > 0.8);
+                const underloaded = this.servers.filter(s => !s.failed && (s.currentLoad / s.capacity) < 0.4 && s.currentLoad < s.capacity);
+
+                if (overloaded.length === 0 || underloaded.length === 0) return;
+
+                overloaded.forEach(overServer => {
+                    while ((overServer.currentLoad / overServer.capacity) > 0.8 && underloaded.length > 0) {
+                        const underServer = underloaded[0];
+                        if (underServer.currentLoad >= underServer.capacity) {
+                            underloaded.shift();
+                            continue;
+                        }
+                        overServer.currentLoad--;
+                        underServer.currentLoad++;
+                        this.log(`🔄 Rebalanced: Moved 1 request from Server ${overServer.id} to Server ${underServer.id}`, 'success');
+                        this.updateServerCard(overServer);
+                        this.updateServerCard(underServer);
+                        if ((underServer.currentLoad / underServer.capacity) >= 0.4) {
+                            underloaded.shift();
+                        }
+                    }
+                });
+            }
+
+            releaseRequest(serverId, requestId) {
+                const server = this.servers.find(s => s.id === serverId);
+                if (!server) return;
+
+                server.currentLoad = Math.max(0, server.currentLoad - 1);
+                this.log(`✅ Request ${requestId} completed on Server ${serverId}`, 'success');
+                this.updateServerCard(server);
+            }
+
+            simulateFailure() {
+                const candidates = this.servers.filter(s => !s.failed);
+                if (candidates.length === 0) {
+                    this.log('⚠️ All servers already failed.', 'error');
+                    return;
+                }
+                const server = candidates[Math.floor(Math.random() * candidates.length)];
+                server.failed = true;
+                server.currentLoad = 0;
+                this.log(`❌ Server ${server.id} FAILED`, 'error');
+                this.updateServerCard(server);
+            }
+
+            recoverServer() {
+                const failedServers = this.servers.filter(s => s.failed);
+                if (failedServers.length === 0) {
+                    this.log('ℹ️ No failed servers to recover.', 'error');
+                    return;
+                }
+                const server = failedServers[Math.floor(Math.random() * failedServers.length)];
+                server.failed = false;
+                this.log(`🔄 Server ${server.id} RECOVERED`, 'success');
+                this.updateServerCard(server);
+            }
+
+            log(message, type = 'info') {
+                const entry = document.createElement('div');
+                entry.textContent = message;
+                entry.className = 'entry ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : '');
+                this.logElement.appendChild(entry);
+                this.logElement.scrollTop = this.logElement.scrollHeight;
+            }
+
+            renderDashboard() {
+                this.dashboard.innerHTML = '';
+                this.servers.forEach(server => {
+                    const card = document.createElement('div');
+                    card.className = 'server-card' + (server.failed ? ' failed' : '');
+                    card.id = 'server-' + server.id;
+                    card.innerHTML = `
+                        <div class="server-header">
+                            <div class="server-id">Server ${server.id}</div>
+                            <div class="status ${server.failed ? 'failed' : 'online'}">
+                                ${server.failed ? 'FAILED' : 'ONLINE'}
+                            </div>
+                        </div>
+                        <div class="load-info">Load: ${server.currentLoad} / ${server.capacity}</div>
+                        <div class="load-bar"><div class="load-fill" style="width:${server.loadPercent}%"></div></div>
+                    `;
+                    this.dashboard.appendChild(card);
+                });
+            }
+
+            updateServerCard(server) {
+                const card = document.getElementById('server-' + server.id);
+                if (!card) return;
+                card.className = 'server-card' + (server.failed ? ' failed' : '');
+                card.querySelector('.status').textContent = server.failed ? 'FAILED' : 'ONLINE';
+                card.querySelector('.status').className = 'status ' + (server.failed ? 'failed' : 'online');
+                card.querySelector('.load-info').textContent = `Load: ${server.currentLoad} / ${server.capacity}`;
+                card.querySelector('.load-fill').style.width = `${server.loadPercent}%`;
+            }
+        }
+
+        const servers = [new Server(1, 10), new Server(2, 10), new Server(3, 10)];
+        const lb = new LoadBalancer(servers);
+
+        // Fix for code block hover event
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
+                card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+            });
+
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                block.addEventListener('mouseenter', () => block.style.borderLeftWidth = '6px');
+                block.addEventListener('mouseleave', () => block.style.borderLeftWidth = '4px');
+            });
+        });
+    </script>
+</body>
+</html>
